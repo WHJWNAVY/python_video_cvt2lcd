@@ -3,7 +3,7 @@
 > run log
 
 ![readme](doc/readme.png)
-
+![bin](doc/bin.png)
 
 
 >  debug log

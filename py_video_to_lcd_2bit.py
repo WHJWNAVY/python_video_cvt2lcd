@@ -194,11 +194,11 @@ while(cap.isOpened()):
                     # print("byte_arry.size, bytei, byten = ", byte_arry.size, bytei, byten)
                     bytei += 1
                     byten = 0
-                LCD_IMAGE_FILE.write(bytearray(byte_arry))
+            LCD_IMAGE_FILE.write(bytearray(byte_arry))
         else:
             pass
         frmcnt += 1
-        print("Frame Count:", frmcnt)
+        # print("Frame Count:", frmcnt)
         # 显示进度
         print("#", end="", flush=True)
         process_bar += 1
