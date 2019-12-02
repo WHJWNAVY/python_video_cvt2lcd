@@ -160,6 +160,7 @@ while(cap.isOpened()):
 
             byten = 0
             bytei = 0
+            frmcnt = 0
             frame.dtype = np.uint8
 
             array_page = math.ceil(LCD_HEIGHT / LCD_IMAGE_COLOUR_DEPTH)
@@ -192,7 +193,7 @@ while(cap.isOpened()):
                 LCD_IMAGE_FILE.write(bytearray(byte_arry))
         else:
             pass
-
+        frmcnt += 1
         # 显示进度
         print("#", end="", flush=True)
         process_bar += 1
@@ -205,8 +206,8 @@ while(cap.isOpened()):
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
     # cv2.waitKey(1)
-print("All Frame Count:", bytei)
-print("\nProcess Done!")
+print("\nAll Frame Count:", frmcnt)
+print("Process Done!")
 LCD_IMAGE_FILE.close()
 print("Save LCD Image File to:", LCD_IMAGE_FILE_NAME)
 
