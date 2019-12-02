@@ -2,7 +2,7 @@
 
 > run log
 
-![readme](readme.png)
+![readme](doc/readme.png)
 
 
 
