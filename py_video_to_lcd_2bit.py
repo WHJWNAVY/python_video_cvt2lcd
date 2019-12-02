@@ -72,7 +72,10 @@ print("Resize Video Size To: (", LCD_WIDTH, LCD_HEIGHT, ")")
 LCD_IMAGE_PIXEL_BIT = 2
 LCD_IMAGE_COLOUR_DEPTH = math_pow(2, LCD_IMAGE_PIXEL_BIT)
 
-LCD_IMAGE_FILE_NAME = "{0}_{1}x{2}_{3}fps_{4}frame_{5}bit.bin".format(VIDEO_NAME, LCD_WIDTH, LCD_HEIGHT, VIDEO_FPS, VIDEO_FFRAME, LCD_IMAGE_PIXEL_BIT)
+timenow = datetime.datetime.now()
+timestr = timenow.strftime("%Y-%m-%d-%H-%M-%S")
+
+LCD_IMAGE_FILE_NAME = "{0}_{1}x{2}_{3}fps_{4}frame_{5}bit_{6}.bin".format(VIDEO_NAME, LCD_WIDTH, LCD_HEIGHT, VIDEO_FPS, VIDEO_FFRAME, LCD_IMAGE_PIXEL_BIT, timestr)
 # print("LCD Image File:", LCD_IMAGE_FILE_NAME)
 LCD_IMAGE_FILE = open(LCD_IMAGE_FILE_NAME, "wb")
 
@@ -99,8 +102,10 @@ LCD_IMAGE_FILE.write(LCD_IMAGE_HEADER)
 process_bar = 0
 process_time0 = 0
 process_time1 = 0
+frmcnt = 0
 print("Start Process!")
 process_time0 = datetime.datetime.now()
+
 while(cap.isOpened()):
     ret, frame = cap.read()
     if ret == True:
@@ -160,7 +165,6 @@ while(cap.isOpened()):
 
             byten = 0
             bytei = 0
-            frmcnt = 0
             frame.dtype = np.uint8
 
             array_page = math.ceil(LCD_HEIGHT / LCD_IMAGE_COLOUR_DEPTH)
@@ -194,6 +198,7 @@ while(cap.isOpened()):
         else:
             pass
         frmcnt += 1
+        print("Frame Count:", frmcnt)
         # 显示进度
         print("#", end="", flush=True)
         process_bar += 1
