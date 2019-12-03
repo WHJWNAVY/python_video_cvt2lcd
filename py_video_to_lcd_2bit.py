@@ -3,11 +3,13 @@ import cv2
 import math
 import datetime
 
+
 def math_pow(x, n):
     sum = 1
     for i in range(n):
         sum = sum*x
     return sum
+
 
 def lcdCvtGrayColor(colGray, colDepth):
     COL_DIV = 256 // colDepth
@@ -17,11 +19,13 @@ def lcdCvtGrayColor(colGray, colDepth):
             return colDepth - 1 - i
     return colDepth - 1
 
+
 LCD_WIDTH = 192
 LCD_HEIGHT = 96
 
 _DEFAULT_GAUSSIAN_BLUR_KERNEL = (5, 5)
-_DEFAULT_THRESHOLD_TYPE = cv2.THRESH_BINARY + cv2.THRESH_OTSU  # cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU
+_DEFAULT_THRESHOLD_TYPE = cv2.THRESH_BINARY + \
+    cv2.THRESH_OTSU  # cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU
 
 VIDEO_NAME = input("Please Input Video Name With Full Path:")
 # VIDEO_NAME = r"F:\RaspberryPi2\BadApple\VideoToLCD_Python\nokia_lumia_925.mp4"
@@ -63,7 +67,7 @@ print("LCD Size: (", LCD_WIDTH, LCD_HEIGHT, ")")
 # 计算图像缩放比例
 VIDEO_WSCAL = LCD_WIDTH / VIDEO_WIDTH
 VIDEO_HSCAL = LCD_HEIGHT / VIDEO_HEIGHT
-VIDEO_SCAL = min(VIDEO_WSCAL, VIDEO_HSCAL) # 等比缩放
+VIDEO_SCAL = min(VIDEO_WSCAL, VIDEO_HSCAL)  # 等比缩放
 LCD_WIDTH = int(VIDEO_WIDTH * VIDEO_SCAL)
 LCD_HEIGHT = int(VIDEO_HEIGHT * VIDEO_SCAL)
 print("Video Scaling Ratio: (", VIDEO_WSCAL, VIDEO_HSCAL, ")")
@@ -75,7 +79,8 @@ LCD_IMAGE_COLOUR_DEPTH = math_pow(2, LCD_IMAGE_PIXEL_BIT)
 timenow = datetime.datetime.now()
 timestr = timenow.strftime("%Y-%m-%d-%H-%M-%S")
 
-LCD_IMAGE_FILE_NAME = "{0}_{1}x{2}_{3}fps_{4}frame_{5}bit_{6}.bin".format(VIDEO_NAME, LCD_WIDTH, LCD_HEIGHT, VIDEO_FPS, VIDEO_FFRAME, LCD_IMAGE_PIXEL_BIT, timestr)
+LCD_IMAGE_FILE_NAME = "{0}_{1}x{2}_{3}fps_{4}frame_{5}bit_{6}.bin".format(
+    VIDEO_NAME, LCD_WIDTH, LCD_HEIGHT, VIDEO_FPS, VIDEO_FFRAME, LCD_IMAGE_PIXEL_BIT, timestr)
 # print("LCD Image File:", LCD_IMAGE_FILE_NAME)
 LCD_IMAGE_FILE = open(LCD_IMAGE_FILE_NAME, "wb")
 
@@ -94,7 +99,8 @@ typedef struct lcd_video_img_hdr_s
 } lcd_video_img_hdr_t;
 '''
 
-LCD_IMAGE_HEADER = np.array([VIDEO_WIDTH, VIDEO_HEIGHT, LCD_WIDTH, LCD_HEIGHT, VIDEO_FPS, VIDEO_FFRAME, LCD_IMAGE_PIXEL_BIT], dtype=np.int32)
+LCD_IMAGE_HEADER = np.array([VIDEO_WIDTH, VIDEO_HEIGHT, LCD_WIDTH, LCD_HEIGHT,
+                             VIDEO_FPS, VIDEO_FFRAME, LCD_IMAGE_PIXEL_BIT], dtype=np.int32)
 LCD_IMAGE_HEADER = bytearray(LCD_IMAGE_HEADER)
 LCD_IMAGE_FILE.write(bytearray(b"LVIF"))
 LCD_IMAGE_FILE.write(LCD_IMAGE_HEADER)
@@ -114,7 +120,8 @@ while(cap.isOpened()):
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)  # 灰度化
 
         # frame = cv2.resize(frame, None, fx=VIDEO_SCAL, fy=VIDEO_SCAL, interpolation=cv2.INTER_CUBIC)  # 改变大小,等比缩放
-        frame = cv2.resize(frame,  (LCD_WIDTH, LCD_HEIGHT), interpolation=cv2.INTER_CUBIC)  # 改变大小，按尺寸缩放
+        frame = cv2.resize(frame,  (LCD_WIDTH, LCD_HEIGHT),
+                           interpolation=cv2.INTER_CUBIC)  # 改变大小，按尺寸缩放
 
         # print("Img Size: ", frame.shape)
 
@@ -128,8 +135,10 @@ while(cap.isOpened()):
         if LCD_IMAGE_PIXEL_BIT == 8:
             LCD_IMAGE_FILE.write(bytearray(frame))
         elif LCD_IMAGE_PIXEL_BIT == 1:
-            frame = cv2.GaussianBlur(frame, ksize=_DEFAULT_GAUSSIAN_BLUR_KERNEL, sigmaX=0)  # 高斯模糊
-            _, frame = cv2.threshold(frame, 0, 255, _DEFAULT_THRESHOLD_TYPE)  # 二值化
+            frame = cv2.GaussianBlur(
+                frame, ksize=_DEFAULT_GAUSSIAN_BLUR_KERNEL, sigmaX=0)  # 高斯模糊
+            _, frame = cv2.threshold(
+                frame, 0, 255, _DEFAULT_THRESHOLD_TYPE)  # 二值化
 
             # Time Consuming: 57 seconds
 
@@ -180,14 +189,16 @@ while(cap.isOpened()):
                         if y >= LCD_HEIGHT:
                             col = 0
                         else:
-                            col = lcdCvtGrayColor(frame[y][x], LCD_IMAGE_COLOUR_DEPTH)
+                            col = lcdCvtGrayColor(
+                                frame[y][x], LCD_IMAGE_COLOUR_DEPTH)
                         # print("x, y, page, col0 = ", x, y, page, col)
                         '''
                         BIT_MAP: | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
                         Y_DOT  : |   0   |   1   |   2   |   3   |
                         '''
                         bitmv = LCD_IMAGE_COLOUR_DEPTH - i - 1
-                        col = col * math_pow(2, bitmv * 2) # col = (col << (2 * bitmv))
+                        # col = (col << (2 * bitmv))
+                        col = col * math_pow(2, bitmv * 2)
                         # print("x, y, page, col1 = ", x, y, page, col)
                         byten = (byten + col)
                     byte_arry[bytei] = byten
@@ -212,6 +223,18 @@ while(cap.isOpened()):
         break
     # cv2.waitKey(1)
 print("\nAll Frame Count:", frmcnt)
+if frmcnt != VIDEO_FFRAME:
+    print("Invalid Frame Count!, Reset It!")
+    VIDEO_FFRAME = frmcnt
+    # set to file begin
+    LCD_IMAGE_FILE.seek(0, 0) 
+    # Reset video frame count
+    LCD_IMAGE_HEADER = np.array([VIDEO_WIDTH, VIDEO_HEIGHT, LCD_WIDTH, LCD_HEIGHT,
+                                 VIDEO_FPS, VIDEO_FFRAME, LCD_IMAGE_PIXEL_BIT], dtype=np.int32)
+    LCD_IMAGE_HEADER = bytearray(LCD_IMAGE_HEADER)
+    LCD_IMAGE_FILE.write(bytearray(b"LVIF"))
+    LCD_IMAGE_FILE.write(LCD_IMAGE_HEADER)
+
 print("Process Done!")
 LCD_IMAGE_FILE.close()
 print("Save LCD Image File to:", LCD_IMAGE_FILE_NAME)
